@@ -19,24 +19,19 @@ class RepositoryAdapter(private val context: Context, private val repositoryList
 
     override fun onBindViewHolder(repositoryViewHolder: RepositoryViewHolder, position: Int) {
         val repository = repositoryList[position]
-        repositoryViewHolder.bind(repository)
+        repositoryViewHolder.bindRepository(repository)
     }
 
     override fun getItemCount(): Int {
         return repositoryList.size
     }
 
-    inner class RepositoryViewHolder internal constructor(private val view: View) : RecyclerView.ViewHolder(view) {
-        internal fun bind(repository: Repository) {
+    inner class RepositoryViewHolder internal constructor(private val view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+        internal fun bindRepository(repository: Repository) {
+            view.setOnClickListener(this)
             setIdTextView(repository.id)
             setNameTextView(repository.name)
             setFullNameTextView(repository.fullName)
-
-            view.setOnClickListener {
-                val repositoryActivityIntent = Intent(context, RepositoryActivity::class.java)
-                repositoryActivityIntent.putExtra("repository", repository)
-                context.startActivity(repositoryActivityIntent)
-            }
         }
 
         private fun setIdTextView(id: String) {
@@ -52,6 +47,18 @@ class RepositoryAdapter(private val context: Context, private val repositoryList
         private fun setFullNameTextView(fullName: String) {
             val fullNameTextView = view.findViewById<TextView>(R.id.full_name_text_view)
             fullNameTextView.text = fullName
+        }
+
+        override fun onClick(v: View?) {
+            val position = layoutPosition
+            val clickedRepository = repositoryList[position]
+            goToRepositoryActivity(clickedRepository)
+        }
+
+        private fun goToRepositoryActivity(repository: Repository) {
+            val repositoryActivityIntent = Intent(context, RepositoryActivity::class.java)
+            repositoryActivityIntent.putExtra("repository", repository)
+            context.startActivity(repositoryActivityIntent)
         }
     }
 }
